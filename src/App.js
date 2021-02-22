@@ -43,19 +43,19 @@ class App extends React.Component {
         {
             "title": "Immunities",
             "names": [
-                'Immune to cold damage', 'Immune to acid damage',
-                'Immune to lightning damage', 'Immune to poison damage', 'Immune to fire damage', 'Immune to psychic damage',
-                'Immune to bludgeoning damage', 'Immune to piercing damage', 'Immune to slashing damage',
-                'Immune to necrotic damage', 'Immune to thunder damage', 'Immune to force damage', 'Immune to radiant damage',
+                'Cold damage', 'Acid damage', 'Lightning damage', 'Poison damage',
+                'Fire damage', 'Psychic damage', 'Bludgeoning damage',
+                'Piercing damage', 'Slashing damage', 'Necrotic damage',
+                'Thunder damage', 'Force damage', 'Radiant damage',
             ]
         },
         {
             "title": "Resistances",
             "names": [
-                'Resistance to cold damage', 'Resistance to acid damage', 'Resistance to lightning damage', 'Resistance to poison damage',
-                'Resistance to fire damage', 'Resistance to psychic damage', 'Resistance to bludgeoning damage',
-                'Resistance to piercing damage', 'Resistance to slashing damage', 'Resistance to necrotic damage',
-                'Resistance to thunder damage', 'Resistance to force damage', 'Resistance to radiant damage']
+                'Cold damage', 'Acid damage', 'Lightning damage', 'Poison damage',
+                'Fire damage', 'Psychic damage', 'Bludgeoning damage',
+                'Piercing damage', 'Slashing damage', 'Necrotic damage',
+                'Thunder damage', 'Force damage', 'Radiant damage']
         }
     ]
     columns = this.selected_columns.map((group) => group["names"]).flat(1)
@@ -71,7 +71,7 @@ class App extends React.Component {
                 <Page.Header>
                     <Text h2>Neural Challenge Rating</Text>
                 </Page.Header>
-                <Text h1>{Math.round(this.state.cr)}</Text>
+                <Text h1>{this.state.cr < 1 ? Number(this.state.cr).toFixed(2) : Math.round(this.state.cr)}</Text>
                 <Text h5>predicted challenge rating</Text>
                 <Divider/>
                 <Select onChange={(event) => this.changePreset(event)}
@@ -86,8 +86,7 @@ class App extends React.Component {
                             {group["names"].map((column) => {
                                 let input
                                 if (["Has fly speed", "Legendary"].indexOf(column) !== -1
-                                    || column.indexOf("Resist") !== -1
-                                    || column.indexOf("Immune") !== -1) {
+                                    || column.endsWith("damage")) {
                                     input = <Checkbox name={column}
                                                       onChange={(event) =>
                                                           this.changeEvent(event, column)}
