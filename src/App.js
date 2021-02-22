@@ -124,7 +124,10 @@ class App extends React.Component {
 
     changeEvent(event, column) {
         const {values} = this.state
-        if (event.target.checked !== undefined) {
+        if (typeof event === "string") {
+            values[column] = parseInt(event)
+        }
+        else if (event.target.value === undefined) {
             values[column] = event.target.checked
         } else {
             values[column] = event.target.value
