@@ -2,7 +2,7 @@ import './App.css'
 import React from 'react'
 import monsters from './monsters.json'
 
-import {Text, Page, Select, Input, Checkbox, Grid, Divider, Link} from '@geist-ui/react'
+import {Text, Page, Select, Input, Checkbox, Grid, Divider, Link, Button} from '@geist-ui/react'
 
 const onnx = require('onnxjs')
 const sess = new onnx.InferenceSession()
@@ -58,7 +58,7 @@ class App extends React.Component {
                 'Thunder damage', 'Force damage', 'Radiant damage']
         }
     ]
-    columns = this.selected_columns.map((group) => group["names"]).flat(1)
+    columns = this.selected_columns.map((group) => group["names"].map((name) => group["title"] + name)).flat(1)
     state = {
         values: {},
         preset: null,
@@ -78,34 +78,36 @@ class App extends React.Component {
                         value={this.state.preset} placeholder="Select SRD monster preset...">
                     {monsters.names.map((name, i) => <Select.Option value={i.toString()}>{name}</Select.Option>)}
                 </Select>
-                <button onClick={this.clear}>Clear</button>
+                <Button auto onClick={this.clear}>Clear</Button>
                 {this.selected_columns.map((group) => {
                     return <>
                         <Divider>{group["title"]}</Divider>
                         <Grid.Container gap={2} justify="center">
                             {group["names"].map((column) => {
+                                const column_id = group["title"] + column
                                 let input
-                                if (["Has fly speed", "Legendary"].indexOf(column) !== -1
-                                    || column.endsWith("damage")) {
-                                    input = <Checkbox name={column}
+                                if (["BasicHas fly speed", "AttributesLegendary"].indexOf(column_id) !== -1
+                                    || column_id.endsWith("damage")) {
+                                    input = <Checkbox name={column_id}
+                                                      size="large"
                                                       onChange={(event) =>
-                                                          this.changeEvent(event, column)}
-                                                      checked={this.state.values[column] === 1}/>
-                                } else if (column === "Size") {
+                                                          this.changeEvent(event, column_id)}
+                                                      checked={this.state.values[column_id] === 1}/>
+                                } else if (column_id === "AttributesSize") {
                                     input = <Select id="size" name="size" onChange={(event) =>
-                                        this.changeEvent(event, column)}
-                                                    value={this.state.values[column] === undefined ? "0" : this.state.values[column].toString()}>
+                                        this.changeEvent(event, column_id)}
+                                                    value={this.state.values[column_id] === undefined ? "0" : this.state.values[column_id].toString()}>
                                         {Object.keys(this.size_map).map((size) => {
                                             return <Select.Option
                                                 value={this.size_map[size].toString()}>{size}</Select.Option>
                                         })}
                                     </Select>
                                 } else {
-                                    input = <Input name={column} type={"number"} onChange={(event) =>
-                                        this.changeEvent(event, column)}
-                                                   value={this.state.values[column] === undefined ? 0 : this.state.values[column]}/>
+                                    input = <Input name={column_id} type={"number"} onChange={(event) =>
+                                        this.changeEvent(event, column_id)}
+                                                   value={this.state.values[column_id] === undefined ? 0 : this.state.values[column_id]}/>
                                 }
-                                return <Grid xs={24} md={12} key={column}>
+                                return <Grid xs={24} md={12} key={column} style={{padding: "5px"}}>
                                     <Grid xs key={"column"}>{column}</Grid>
                                     <Grid xs key={"input"}>{input}</Grid>
                                 </Grid>
@@ -114,7 +116,6 @@ class App extends React.Component {
                         </Grid.Container>
                     </>
                 })}
-
                 <Divider/>
                 <Text>Made by <Link href={"https://twitter.com/Sciguymjm"} color>Matthew Mage</Link></Text>
             </Page>
@@ -125,9 +126,8 @@ class App extends React.Component {
         const {values} = this.state
         if (typeof event === "string") {
             values[column] = parseInt(event)
-        }
-        else if (event.target.value === undefined) {
-            values[column] = event.target.checked
+        } else if (event.target.value === undefined) {
+            values[column] = event.target.checked ? 1 : 0
         } else {
             values[column] = event.target.value
         }
@@ -155,7 +155,6 @@ class App extends React.Component {
         })
         this.setState({values, preset: idx.toString()}, () => {
             this.predict()
-            console.log(this.state.values)
         })
     }
 
@@ -187,9 +186,4 @@ class App extends React.Component {
 
     }
 }
-
-loadingModelPromise.then(() => {
-    console.log("Model loaded")
-    console.log(monsters)
-})
 export default App
