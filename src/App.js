@@ -66,7 +66,6 @@ class App extends React.Component {
     }
 
     render() {
-        console.log(this.columns)
         return (
             <Page size="mini">
                 <Page.Header>
@@ -77,7 +76,7 @@ class App extends React.Component {
                 <Divider/>
                 <Select onChange={(event) => this.changePreset(event)}
                         value={this.state.preset} placeholder="Select SRD monster preset...">
-                    {monsters.names.map((name, i) => <Select.Option value={(i + 1).toString()}>{name}</Select.Option>)}
+                    {monsters.names.map((name, i) => <Select.Option value={i.toString()}>{name}</Select.Option>)}
                 </Select>
                 <button onClick={this.clear}>Clear</button>
                 {this.selected_columns.map((group) => {
@@ -125,7 +124,7 @@ class App extends React.Component {
 
     changeEvent(event, column) {
         const {values} = this.state
-        if (event.target.type === "checkbox") {
+        if (event.target.checked !== undefined) {
             values[column] = event.target.checked
         } else {
             values[column] = event.target.value
@@ -136,7 +135,9 @@ class App extends React.Component {
     }
 
     changePreset(event) {
-        const idx = parseInt(event) - 1
+        if (event === null)
+            return
+        const idx = parseInt(event)
         if (idx === -1)
             return
         const values = {}
@@ -150,7 +151,7 @@ class App extends React.Component {
                 values[column] = monsters.data[idx][i]
             }
         })
-        this.setState({values, preset: (idx + 1).toString()}, () => {
+        this.setState({values, preset: idx.toString()}, () => {
             this.predict()
         })
     }
