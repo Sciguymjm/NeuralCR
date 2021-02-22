@@ -1,5 +1,6 @@
 import './App.css'
 import React from 'react'
+import monsters from './monsters.json'
 
 const onnx = require('onnxjs')
 const sess = new onnx.InferenceSession()
@@ -27,6 +28,7 @@ class App extends React.Component {
         'resist_thunder', 'resist_force', 'resist_radiant']
     state = {
         values: {},
+        preset: -1,
         cr: 0
     }
 
@@ -35,6 +37,14 @@ class App extends React.Component {
             <div className="App">
                 {/*<img src={logo} className="App-logo" alt="logo" />*/}
                 <h1>{Math.round(this.state.cr)}</h1>
+                <select id="preset" name="preset" onChange={(event) => this.changePreset(event)}
+                value={this.state.preset}>
+                    <option value={-1}>Select SRD monster preset...</option>
+                    {monsters.names.map((name, i) => {
+                        return <option value={i}>{name}</option>
+                    })}
+                </select>
+                <button onClick={this.clear}>Clear</button>
                 {this.selected_columns.map((column) => {
                     let input
                     if (["flies", "legendary"].indexOf(column) !== -1
@@ -42,17 +52,20 @@ class App extends React.Component {
                         || column.indexOf("immune") !== -1) {
                         input = <input name={column} type={"checkbox"}
                                        onChange={(event) =>
-                                           this.changeEvent(event, column)}/>
+                                           this.changeEvent(event, column)}
+                                       checked={this.state.values[column]}/>
                     } else if (column === "size") {
                         input = <select id="size" name="size" onChange={(event) =>
-                            this.changeEvent(event, column)}>
+                            this.changeEvent(event, column)}
+                                        value={this.state.values[column] === undefined ? 0 : this.state.values[column]}>
                             {Object.keys(this.size_map).map((size) => {
                                 return <option value={this.size_map[size]}>{size}</option>
                             })}
                         </select>
                     } else {
                         input = <input name={column} type={"number"} onChange={(event) =>
-                            this.changeEvent(event, column)}/>
+                            this.changeEvent(event, column)}
+                                       value={this.state.values[column] === undefined ? 0 : this.state.values[column]}/>
                     }
                     return <p key={column}>
                         <span>{column}</span>
@@ -73,6 +86,30 @@ class App extends React.Component {
         this.setState({values}, () => {
             this.predict()
         })
+    }
+
+    changePreset(event) {
+        const idx = event.target.value
+        if (idx === "-1")
+            return
+        const values = {}
+        this.selected_columns.forEach((column, i) => {
+            if (["flies", "legendary"].indexOf(column) !== -1
+                || column.indexOf("resist") !== -1
+                || column.indexOf("immune") !== -1) {
+                console.log(column, monsters.data[parseInt(idx)][i], monsters.data[parseInt(idx)][i] === 1.0)
+                values[column] = monsters.data[parseInt(idx)][i] === 1.0
+            } else {
+                values[column] = monsters.data[parseInt(idx)][i]
+            }
+        })
+        this.setState({values, preset: idx}, () => {
+            this.predict()
+        })
+    }
+
+    clear = () => {
+        this.setState({values: {}, preset: -1, cr: 0})
     }
 
     predict() {
@@ -100,12 +137,8 @@ class App extends React.Component {
     }
 }
 
-function predict() {
-
-}
-
 loadingModelPromise.then(() => {
     console.log("Model loaded")
-    document.body.addEventListener("mousedown", predict)
+    console.log(monsters)
 })
 export default App
