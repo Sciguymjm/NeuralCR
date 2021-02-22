@@ -91,7 +91,7 @@ class App extends React.Component {
                                     input = <Checkbox name={column}
                                                       onChange={(event) =>
                                                           this.changeEvent(event, column)}
-                                                      checked={this.state.values[column]}/>
+                                                      checked={this.state.values[column] === 1}/>
                                 } else if (column === "Size") {
                                     input = <Select id="size" name="size" onChange={(event) =>
                                         this.changeEvent(event, column)}
@@ -156,6 +156,7 @@ class App extends React.Component {
         })
         this.setState({values, preset: idx.toString()}, () => {
             this.predict()
+            console.log(this.state.values)
         })
     }
 
