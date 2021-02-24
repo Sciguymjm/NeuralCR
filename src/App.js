@@ -2,7 +2,7 @@ import './App.css'
 import React from 'react'
 import monsters from './monsters.json'
 
-import {Text, Page, Select, Input, Checkbox, Grid, Divider, Link, Button} from '@geist-ui/react'
+import {Button, Checkbox, Divider, Grid, Input, Link, Page, Select, Text} from '@geist-ui/react'
 
 const onnx = require('onnxjs')
 const sess = new onnx.InferenceSession()
@@ -117,7 +117,16 @@ class App extends React.Component {
                     </>
                 })}
                 <Divider/>
-                <Text>Made by <Link href={"https://twitter.com/Sciguymjm"} color>Matthew Mage</Link></Text>
+                <Text>Made by <Link href={"https://twitter.com/Sciguymjm"} color>Matthew Mage</Link>
+                </Text>
+                <a href='https://ko-fi.com/matthewmage' target='_blank'>
+                    <img
+                        style={{border: "0px", height: "30px"}}
+                        src='https://cdn.ko-fi.com/cdn/kofi2.png?v='
+                        border='0'
+                        alt='Buy Me a Coffee at ko-fi.com'/>
+                </a>
+
             </Page>
         )
     }
@@ -186,4 +195,5 @@ class App extends React.Component {
 
     }
 }
+
 export default App
